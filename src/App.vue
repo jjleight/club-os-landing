@@ -1,329 +1,170 @@
 <script setup>
-import { ref } from 'vue';
-import { 
-  ShieldAlert, 
-  Wallet, 
-  ArrowRight, 
-  CheckCircle2, 
-  XCircle, 
-  AlertTriangle,
-  Zap,
-  LayoutGrid
-} from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import BrandLogo from './components/BrandLogo.vue';
+import { LayoutGrid, Wallet, Users, Settings, LogOut, Menu } from 'lucide-vue-next';
 
-const email = ref('');
-const loading = ref(false);
-const submitted = ref(false);
-const activeDemoTab = ref('selection');
+const route = useRoute();
 
-const handleSubmit = async () => {
-  loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
-    submitted.value = true;
-    email.value = '';
-  }, 1500);
-};
-
-const competitors = [
-  { feature: "Match Fee Collection", spond: true, clubos: true },
-  { feature: "Team Chat", spond: true, clubos: true },
-  { feature: "League Eligibility Engine", spond: false, clubos: true },
-  { feature: "Family/Sibling Wallet", spond: false, clubos: true },
-  { feature: "Cross-Team Availability", spond: false, clubos: true },
-  { feature: "Club-wide Data & Stats", spond: false, clubos: true },
-];
+// This tells the App: "If we are at the root URL (/), hide the sidebar."
+const isLandingPage = computed(() => route.path === '/');
 </script>
 
 <template>
-  <!-- CHANGE 1: Darker Base Background (Slate-100 instead of Slate-50) -->
-  <div class="min-h-screen bg-slate-100 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700 overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 font-sans text-slate-900 flex">
     
-    <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/60">
-      <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-2 group cursor-pointer">
-          <div class="relative w-8 h-8">
-            <div class="absolute inset-0 bg-indigo-600 rounded-lg transform rotate-3 group-hover:rotate-6 transition shadow-sm"></div>
-            <div class="absolute inset-0 bg-rose-500 rounded-lg opacity-90 mix-blend-multiply transform -rotate-3 group-hover:-rotate-6 transition shadow-sm"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">C</div>
+    <!-- === DESKTOP SIDEBAR === -->
+    <!-- We hide this sidebar if we are on the Landing Page -->
+    <aside v-if="!isLandingPage" class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-300 h-screen sticky top-0 border-r border-slate-800 transition-all">
+      
+      <!-- Sidebar Header -->
+      <div class="p-6 flex items-center gap-3 cursor-pointer" @click="$router.push('/')">
+        <div class="w-8 h-8">
+          <BrandLogo />
+        </div>
+        <span class="text-xl font-bold text-white tracking-tight">Club<span class="text-indigo-500">OS</span></span>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 px-4 space-y-2 mt-4">
+        <router-link to="/selection" class="nav-row" active-class="active">
+          <LayoutGrid class="w-5 h-5" />
+          <span>Team Selection</span>
+        </router-link>
+
+        <router-link to="/wallet" class="nav-row" active-class="active">
+          <Wallet class="w-5 h-5" />
+          <span>Family Wallet</span>
+        </router-link>
+
+        <div class="nav-row opacity-50 cursor-not-allowed">
+          <Users class="w-5 h-5" />
+          <span>Club Members</span>
+        </div>
+
+        <div class="nav-row opacity-50 cursor-not-allowed">
+          <Settings class="w-5 h-5" />
+          <span>Settings</span>
+        </div>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-slate-800">
+        <router-link to="/" class="flex items-center gap-3 text-sm font-medium hover:text-white transition">
+          <LogOut class="w-4 h-4" />
+          Back to Home
+        </router-link>
+      </div>
+    </aside>
+
+    <!-- === MAIN CONTENT AREA === -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      
+      <!-- Mobile Header (App View Only) -->
+      <div v-if="!isLandingPage" class="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-20">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8">
+            <BrandLogo />
           </div>
-          <span class="text-xl font-bold tracking-tight text-slate-800">Club<span class="text-indigo-600">OS</span></span>
+          <span class="font-bold text-lg text-slate-900">ClubOS</span>
         </div>
-        
-        <div class="hidden md:flex gap-8 text-sm font-medium text-slate-600">
-          <a href="#" class="hover:text-indigo-600 transition">Features</a>
-          <a href="#" class="hover:text-indigo-600 transition">For Treasurers</a>
-          <a href="#" class="hover:text-indigo-600 transition">Pricing</a>
-        </div>
+        <router-link to="/" class="text-slate-500">
+          <LogOut class="w-5 h-5" />
+        </router-link>
+      </div>
 
-        <button class="hidden md:flex bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition shadow-lg shadow-slate-900/20 hover:shadow-xl hover:-translate-y-0.5">
-          Book Demo
-        </button>
-      </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header class="container mx-auto px-6 pt-20 pb-32 text-center relative">
-      
-      <!-- CHANGE 2: The "Atmospheric Mesh" - Dual Blurs -->
-      <div class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-indigo-300/30 rounded-full blur-[120px] -z-10 mix-blend-multiply animate-pulse-slow"></div>
-      <div class="absolute top-20 right-1/4 w-[500px] h-[500px] bg-rose-300/30 rounded-full blur-[100px] -z-10 mix-blend-multiply animate-pulse-slow" style="animation-delay: 2s;"></div>
-      
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 text-xs font-bold tracking-wide text-indigo-700 uppercase bg-white rounded-full border border-indigo-100 shadow-sm">
-        <Zap class="w-3 h-3 fill-current text-rose-500" />
-        The Operating System for Grassroots Sport
-      </div>
-      
-      <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-8 tracking-tight text-slate-900">
-        The Pulse of<br />
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-rose-500">Your Entire Club.</span>
-      </h1>
-      
-      <p class="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
-        Stop managing twenty separate teams. Start managing <strong>one unified ecosystem</strong>. 
-        Automate payments, prevent fines, and connect your community.
-      </p>
-
-      <!-- Signup Form -->
-      <div v-if="!submitted" class="max-w-md mx-auto bg-white p-2 rounded-2xl shadow-xl shadow-indigo-900/5 border border-white/50 flex flex-col md:flex-row gap-2 transform hover:scale-[1.01] transition duration-300">
-        <input v-model="email" type="email" placeholder="secretary@localclub.co.uk" class="flex-1 bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 transition" required />
-        <button @click="handleSubmit" :disabled="loading" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl transition whitespace-nowrap flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30">
-          <span v-if="loading">Joining...</span>
-          <span v-else>Join Waitlist</span>
-          <ArrowRight v-if="!loading" class="w-4 h-4" />
-        </button>
-      </div>
-      <div v-else class="max-w-md mx-auto bg-white border border-emerald-100 p-4 rounded-xl text-emerald-700 font-semibold flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/5">
-        <CheckCircle2 class="w-5 h-5" />
-        You're on the list! We'll be in touch.
-      </div>
-      
-      <!-- Logos Placeholder -->
-      <div class="mt-16 pt-8 border-t border-slate-200/60 max-w-2xl mx-auto">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Clubs waiting for access</p>
-        <div class="flex flex-wrap items-center justify-center gap-8 grayscale opacity-40 mix-blend-multiply">
-           <div class="h-8 w-24 bg-slate-300 rounded-md"></div>
-           <div class="h-8 w-24 bg-slate-300 rounded-md"></div>
-           <div class="h-8 w-24 bg-slate-300 rounded-md"></div>
-           <div class="h-8 w-24 bg-slate-300 rounded-md"></div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Feature Section: White Background to contrast with Silver Hero -->
-    <section class="bg-white py-24 relative z-10 rounded-t-[3rem] shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
-      <div class="container mx-auto px-6">
-        <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <!-- THE MAGIC WINDOW: This is where pages appear -->
+      <div class="flex-1 overflow-y-auto" :class="!isLandingPage ? 'p-0 md:p-8' : ''">
+        <div :class="!isLandingPage ? 'max-w-5xl mx-auto' : 'w-full'">
           
-          <div class="space-y-4">
-            <h2 class="text-3xl font-bold mb-2 text-slate-900">Why Clubs Switch</h2>
-            <p class="text-slate-500 mb-8 text-lg">Spond handles the chat. We handle the compliance and payments.</p>
-            
-            <!-- Selectors -->
-            <button @click="activeDemoTab = 'selection'" 
-                 class="w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 relative group"
-                 :class="activeDemoTab === 'selection' ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-slate-50'">
-              <div class="flex items-start gap-4">
-                <div class="p-3 rounded-xl shadow-sm" :class="activeDemoTab === 'selection' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-400'">
-                  <ShieldAlert class="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 class="text-lg font-bold mb-1" :class="activeDemoTab === 'selection' ? 'text-indigo-900' : 'text-slate-700'">The Eligibility Engine</h3>
-                  <p class="text-sm text-slate-500 leading-relaxed">Stop accidental fines. The app alerts captains if a player is ineligible.</p>
-                </div>
-              </div>
-            </button>
-
-            <button @click="activeDemoTab = 'wallet'"
-                 class="w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 relative group"
-                 :class="activeDemoTab === 'wallet' ? 'border-emerald-500 bg-emerald-50/50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-slate-50'">
-              <div class="flex items-start gap-4">
-                <div class="p-3 rounded-xl shadow-sm" :class="activeDemoTab === 'wallet' ? 'bg-emerald-500 text-white' : 'bg-white text-slate-400'">
-                  <Wallet class="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 class="text-lg font-bold mb-1" :class="activeDemoTab === 'wallet' ? 'text-emerald-900' : 'text-slate-700'">The Family Wallet</h3>
-                  <p class="text-sm text-slate-500 leading-relaxed">One invoice for the whole house. Parents pay for siblings and themselves in a single tap.</p>
-                </div>
-              </div>
-            </button>
-          </div>
-
-          <!-- Phone Mockup -->
-          <div class="relative mx-auto">
-            <div class="relative border-slate-900 bg-slate-900 border-[12px] rounded-[2.5rem] h-[640px] w-[320px] shadow-2xl shadow-slate-900/20 overflow-hidden transform rotate-1 hover:rotate-0 transition duration-500">
-              <div class="bg-slate-50 w-full h-full pt-12 pb-4 overflow-y-auto no-scrollbar">
-                
-                <!-- Eligibility Demo -->
-                <div v-if="activeDemoTab === 'selection'" class="px-4 animate-fade-in">
-                  <div class="flex justify-between items-end mb-6 border-b border-slate-200 pb-4">
-                    <div>
-                      <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">2nd XI Selection</div>
-                      <div class="text-xl font-bold text-slate-900">vs. Ashford Town</div>
-                    </div>
-                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                      <LayoutGrid class="w-4 h-4" />
-                    </div>
-                  </div>
-                  
-                  <div class="space-y-3">
-                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
-                      <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">JC</div>
-                        <div>
-                          <div class="font-bold text-slate-900 text-sm">John Clarke</div>
-                          <div class="text-[10px] text-emerald-600 font-medium bg-emerald-50 px-1.5 py-0.5 rounded inline-block">Available</div>
-                        </div>
-                      </div>
-                      <CheckCircle2 class="w-5 h-5 text-slate-300" />
-                    </div>
-
-                    <div class="bg-white p-3 rounded-xl border-2 border-rose-100 shadow-sm relative overflow-hidden">
-                      <div class="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-bold px-2 py-1 rounded-bl-lg">INELIGIBLE</div>
-                      <div class="flex items-center gap-3 opacity-60">
-                        <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm">AL</div>
-                        <div>
-                          <div class="font-bold text-slate-900 text-sm">Aaron Leeton</div>
-                          <div class="text-[10px] text-slate-500">1st XI Apps: 8 (Limit: 5)</div>
-                        </div>
-                      </div>
-                      <div class="mt-3 bg-rose-50 p-3 rounded-lg border border-rose-100 flex gap-2">
-                        <AlertTriangle class="w-4 h-4 text-rose-500 shrink-0" />
-                        <div class="text-[10px] text-rose-700 leading-tight">
-                          <strong>League Violation:</strong> Selecting Aaron may result in a £50 fine.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Wallet Demo -->
-                <div v-else class="px-4 animate-fade-in">
-                  <div class="bg-slate-900 rounded-2xl p-6 text-white mb-6 shadow-xl shadow-indigo-500/20 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-full blur-2xl -mr-10 -mt-10 opacity-50"></div>
-                    <div class="relative z-10">
-                      <div class="text-slate-400 text-xs font-medium uppercase mb-1">Total Outstanding</div>
-                      <div class="text-3xl font-bold">£45.00</div>
-                      <div class="text-xs text-indigo-300 mt-2">Due: 28 Nov 2025</div>
-                    </div>
-                  </div>
-
-                  <div class="space-y-2">
-                    <div class="text-xs font-bold text-slate-400 uppercase px-1">Breakdown</div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-xs">👶</div>
-                        <div>
-                          <div class="text-sm font-bold text-slate-900">Jack (U10)</div>
-                          <div class="text-[10px] text-slate-500">Match Fee vs Ashford</div>
-                        </div>
-                      </div>
-                      <div class="font-bold text-slate-700">£5.00</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-xs">👶</div>
-                        <div>
-                          <div class="text-sm font-bold text-slate-900">James (Vets)</div>
-                          <div class="text-[10px] text-slate-500">Match Fee vs Pub XI</div>
-                        </div>
-                      </div>
-                      <div class="font-bold text-slate-700">£10.00</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-xs">👧</div>
-                        <div>
-                          <div class="text-sm font-bold text-slate-900">Sarah (U12)</div>
-                          <div class="text-[10px] text-slate-500">Annual Subs</div>
-                        </div>
-                      </div>
-                      <div class="font-bold text-slate-700">£30.00</div>
-                    </div>
-                  </div>
-                  <button class="w-full mt-6 bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg">Pay All</button>
-                </div>
-
-              </div>
-              <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-xl z-20"></div>
-            </div>
-          </div>
+          <!-- <router-view> swaps LandingPage.vue for TeamSelection.vue when URL changes -->
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
 
         </div>
       </div>
-    </section>
 
-    <!-- Comparison Table: Silver Background to differentiate from Feature section -->
-    <section class="py-24 bg-slate-100">
-      <div class="container mx-auto px-6 max-w-4xl">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold mb-4 text-slate-900">The "Club" Standard</h2>
-          <p class="text-slate-500">See why Treasurers are upgrading from chat apps.</p>
-        </div>
-        
-        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200 border border-slate-200/60 overflow-hidden">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="border-b border-slate-100 bg-slate-50/50">
-                <th class="p-6 font-bold text-slate-400 text-xs uppercase tracking-wider w-1/2">Feature</th>
-                <th class="p-6 font-bold text-center text-slate-400 text-xs uppercase tracking-wider w-1/4">Spond</th>
-                <th class="p-6 font-bold text-center text-indigo-600 text-xs uppercase tracking-wider w-1/4 bg-indigo-50/30">ClubOS</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              <tr v-for="item in competitors" :key="item.feature" class="hover:bg-slate-50 transition group">
-                <td class="p-5 font-medium text-slate-700 group-hover:text-indigo-900 transition">{{ item.feature }}</td>
-                <td class="p-5 text-center">
-                  <CheckCircle2 v-if="item.spond" class="w-5 h-5 text-slate-400 mx-auto" />
-                  <XCircle v-else class="w-5 h-5 text-slate-200 mx-auto" />
-                </td>
-                <td class="p-5 text-center bg-indigo-50/10 group-hover:bg-indigo-50/30 transition">
-                  <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-sm shadow-emerald-200">
-                    <CheckCircle2 class="w-4 h-4" />
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+      <!-- Mobile Bottom Nav (App View Only) -->
+      <nav v-if="!isLandingPage" class="md:hidden bg-white border-t border-slate-200 flex justify-around items-center p-2 pb-safe z-30 sticky bottom-0">
+        <router-link to="/selection" class="mobile-nav-item" active-class="active">
+          <LayoutGrid class="w-6 h-6" />
+          <span>Team</span>
+        </router-link>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-12 text-center border-t border-slate-800">
-      <div class="container mx-auto px-6">
-        <div class="flex items-center justify-center gap-2 mb-6 opacity-50 grayscale hover:grayscale-0 transition duration-500">
-           <div class="relative w-6 h-6">
-            <div class="absolute inset-0 bg-indigo-600 rounded-md transform rotate-3"></div>
-            <div class="absolute inset-0 bg-rose-500 rounded-md opacity-80 mix-blend-multiply transform -rotate-3"></div>
-          </div>
-          <span class="text-lg font-bold text-white tracking-tight">ClubOS</span>
+        <router-link to="/wallet" class="mobile-nav-item" active-class="active">
+          <Wallet class="w-6 h-6" />
+          <span>Wallet</span>
+        </router-link>
+
+        <div class="mobile-nav-item opacity-40">
+          <Settings class="w-6 h-6" />
+          <span>More</span>
         </div>
-        <p class="text-sm mb-8">© 2025 ClubOS UK. Built for the love of the game.</p>
-      </div>
-    </footer>
+      </nav>
+
+    </main>
   </div>
 </template>
 
-<style>
-/* Custom Animation for the Background Mesh */
-@keyframes pulse-slow {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.1); }
+<style scoped>
+/* Sidebar Styles */
+.nav-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  color: #94a3b8;
 }
-.animate-pulse-slow {
-  animation: pulse-slow 8s infinite ease-in-out;
-}
+.nav-row:hover { background-color: #1e293b; color: white; }
+.nav-row.active { background-color: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Mobile Nav Styles */
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.mobile-nav-item.active { color: #4f46e5; }
+
+/* Page Transitions */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
 </style>
 
+Step 3: Verify Router
+Ensure your src/router/index.js looks like this (it connects the pieces):
+import { createRouter, createWebHistory } from 'vue-router'
+import LandingPage from '../components/LandingPage.vue'
+import TeamSelection from '../components/TeamSelection.vue'
+import FamilyWallet from '../components/FamilyWallet.vue'
+
+const routes = [
+  { path: '/', component: LandingPage },
+  { path: '/selection', component: TeamSelection },
+  { path: '/wallet', component: FamilyWallet }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }
+  }
+})
+
+export default router

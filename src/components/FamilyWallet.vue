@@ -1,16 +1,16 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { supabase } from '../supabase';
+import { useToast } from '../composables/useToast';
+import { useConfirm } from '../composables/useConfirm'; // Import Confirm
 import { Wallet, CreditCard, CheckCircle2, ChevronRight, Receipt } from 'lucide-vue-next';
 
+const { showToast } = useToast();
+const { showConfirm } = useConfirm(); // Use Confirm
 const loading = ref(true);
 const ledgerItems = ref([]);
 const householdName = ref("The Smith Family");
-
-// Hardcoded for Demo: The ID of the 'Smith Family' you created in SQL
-// In a real app, this comes from the logged-in user's session
-const DEMO_HOUSEHOLD_ID = 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380e11';
- 
+const DEMO_HOUSEHOLD_ID = 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380e11'; 
 
 onMounted(async () => {
   await fetchWallet();
@@ -18,21 +18,14 @@ onMounted(async () => {
 
 async function fetchWallet() {
   try {
-    // 1. Fetch pending items for this household, including player names
     const { data, error } = await supabase
       .from('ledger')
       .select(`
-        id,
-        amount,
-        description,
-        created_at,
-        players (
-          first_name,
-          last_name
-        )
+        id, amount, description, created_at,
+        players ( first_name, last_name )
       `)
       .eq('household_id', DEMO_HOUSEHOLD_ID)
-      .eq('status', 'pending'); // Only show unpaid debts
+      .eq('status', 'pending');
 
     if (error) throw error;
     ledgerItems.value = data;
@@ -43,24 +36,27 @@ async function fetchWallet() {
   }
 }
 
-// Calculate Total Debt dynamically
 const totalDue = computed(() => {
   return ledgerItems.value.reduce((sum, item) => sum + item.amount, 0).toFixed(2);
 });
 
-// Mock Payment Function
 const handlePayment = async () => {
-  if (!confirm(`Confirm payment of £${totalDue}?`)) return;
+  // NEW: Modern Confirm Modal
+  const isConfirmed = await showConfirm(
+    "Confirm Payment", 
+    `Are you sure you want to pay £${totalDue.value} now?`
+  );
+
+  if (!isConfirmed) return;
   
-  // Optimistic UI Update (Make it disappear instantly)
+  // Optimistic UI Update
   ledgerItems.value = [];
-  alert("Payment Successful! Thank you for supporting the club.");
+  showToast('Payment Successful', 'Thank you for supporting the club!', 'success');
 };
 </script>
 
 <template>
-  <div class="w-full bg-white shadow-sm border border-slate-200 rounded-2xl overflow-hidden min-h-[80vh]">
-    
+  <div class="min-h-screen bg-slate-50 pb-24">
     <!-- Real Header -->
     <div class="bg-indigo-600 text-white p-6 pt-12 shadow-xl relative overflow-hidden">
       <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
@@ -83,6 +79,7 @@ const handlePayment = async () => {
           <CheckCircle2 class="w-8 h-8" />
         </div>
         <h3 class="text-slate-900 font-bold text-lg">All Paid Up!</h3>
+        <p class="text-slate-500 text-sm">You are match-ready.</p>
       </div>
 
       <div v-else>
@@ -107,7 +104,7 @@ const handlePayment = async () => {
           </div>
         </div>
 
-        <button @click="handlePayment" class="w-full mt-8 bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg">
+        <button @click="handlePayment" class="w-full mt-8 bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-slate-800 transition">
           Pay £{{ totalDue }} Now
         </button>
       </div>

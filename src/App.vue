@@ -1,46 +1,75 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useUser } from './composables/useUser';
 import BrandLogo from './components/BrandLogo.vue';
-import { LayoutGrid, Wallet, Users, Settings, LogOut, Menu } from 'lucide-vue-next';
+import ToastManager from './components/ToastManager.vue';
+import ConfirmationModal from './components/ConfirmationModal.vue';
+import RoleSwitcher from './components/RoleSwitcher.vue'; 
+import { 
+  LayoutGrid, 
+  Wallet, 
+  HandCoins, 
+  Settings, 
+  LogOut, 
+  Menu, 
+  Gavel, 
+  Users,
+  Calendar // NEW IMPORT
+} from 'lucide-vue-next';
 
 const route = useRoute();
-
-// This tells the App: "If we are at the root URL (/), hide the sidebar."
-const isLandingPage = computed(() => route.path === '/');
+const isLandingPage = computed(() => route.path === '/' || route.path === '/onboarding');
+const { permissions } = useUser(); 
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 font-sans text-slate-900 flex">
+  <div class="min-h-screen bg-slate-50 font-sans text-slate-900 flex relative">
     
-    <!-- === DESKTOP SIDEBAR === -->
-    <!-- We hide this sidebar if we are on the Landing Page -->
+    <ToastManager />
+    <ConfirmationModal /> 
+
+    <!-- DESKTOP SIDEBAR -->
     <aside v-if="!isLandingPage" class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-300 h-screen sticky top-0 border-r border-slate-800 transition-all">
-      
-      <!-- Sidebar Header -->
       <div class="p-6 flex items-center gap-3 cursor-pointer" @click="$router.push('/')">
         <div class="w-8 h-8">
           <BrandLogo />
         </div>
-        <span class="text-xl font-bold text-white tracking-tight">Club<span class="text-indigo-500">OS</span></span>
+        <span class="text-xl font-bold text-white tracking-tight">Sport<span class="text-indigo-500">OS</span></span>
       </div>
 
-      <!-- Navigation -->
       <nav class="flex-1 px-4 space-y-2 mt-4">
-        <router-link to="/selection" class="nav-row" active-class="active">
+        
+        <router-link v-if="permissions.canSelectTeam" to="/selection" class="nav-row" active-class="active">
           <LayoutGrid class="w-5 h-5" />
           <span>Team Selection</span>
         </router-link>
 
         <router-link to="/wallet" class="nav-row" active-class="active">
           <Wallet class="w-5 h-5" />
-          <span>Family Wallet</span>
+          <span>My Wallet</span>
         </router-link>
 
-        <div class="nav-row opacity-50 cursor-not-allowed">
+        <router-link v-if="permissions.canManageMoney" to="/treasurer" class="nav-row" active-class="active">
+          <HandCoins class="w-5 h-5" />
+          <span>Club Health</span>
+        </router-link>
+
+        <!-- FIXTURES LINK (Visible to Coach & Secretary) -->
+        <router-link v-if="permissions.canSelectTeam || permissions.canEditRules" to="/fixtures" class="nav-row" active-class="active">
+          <Calendar class="w-5 h-5" />
+          <span>Fixtures</span>
+        </router-link>
+
+        <router-link v-if="permissions.canEditRules" to="/rules" class="nav-row" active-class="active">
+          <Gavel class="w-5 h-5" />
+          <span>Compliance</span>
+        </router-link>
+
+        <router-link v-if="permissions.canEditRules" to="/admin" class="nav-row" active-class="active">
           <Users class="w-5 h-5" />
-          <span>Club Members</span>
-        </div>
+          <span>Club Admin</span>
+        </router-link>
 
         <div class="nav-row opacity-50 cursor-not-allowed">
           <Settings class="w-5 h-5" />
@@ -48,48 +77,47 @@ const isLandingPage = computed(() => route.path === '/');
         </div>
       </nav>
 
-      <!-- Sidebar Footer -->
-      <div class="p-4 border-t border-slate-800">
-        <router-link to="/" class="flex items-center gap-3 text-sm font-medium hover:text-white transition">
+      <div class="p-4 border-t border-slate-800 space-y-4">
+        <RoleSwitcher theme="dark" direction="up" />
+        
+        <router-link to="/" class="flex items-center gap-3 text-sm font-medium hover:text-white transition px-2">
           <LogOut class="w-4 h-4" />
           Back to Home
         </router-link>
       </div>
     </aside>
 
-    <!-- === MAIN CONTENT AREA === -->
+    <!-- MAIN CONTENT AREA -->
     <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
       
-      <!-- Mobile Header (App View Only) -->
+      <!-- Mobile Header -->
       <div v-if="!isLandingPage" class="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-20">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8">
             <BrandLogo />
           </div>
-          <span class="font-bold text-lg text-slate-900">ClubOS</span>
+          <span class="font-bold text-lg text-slate-900">SportOS</span>
         </div>
-        <router-link to="/" class="text-slate-500">
-          <LogOut class="w-5 h-5" />
-        </router-link>
+        <div class="w-40">
+           <RoleSwitcher theme="light" direction="down" />
+        </div>
       </div>
 
-      <!-- THE MAGIC WINDOW: This is where pages appear -->
+      <!-- Page View -->
       <div class="flex-1 overflow-y-auto" :class="!isLandingPage ? 'p-0 md:p-8' : ''">
         <div :class="!isLandingPage ? 'max-w-5xl mx-auto' : 'w-full'">
-          
-          <!-- <router-view> swaps LandingPage.vue for TeamSelection.vue when URL changes -->
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
               <component :is="Component" />
             </transition>
           </router-view>
-
         </div>
       </div>
 
-      <!-- Mobile Bottom Nav (App View Only) -->
+      <!-- MOBILE BOTTOM NAV -->
       <nav v-if="!isLandingPage" class="md:hidden bg-white border-t border-slate-200 flex justify-around items-center p-2 pb-safe z-30 sticky bottom-0">
-        <router-link to="/selection" class="mobile-nav-item" active-class="active">
+        
+        <router-link v-if="permissions.canSelectTeam" to="/selection" class="mobile-nav-item" active-class="active">
           <LayoutGrid class="w-6 h-6" />
           <span>Team</span>
         </router-link>
@@ -99,10 +127,21 @@ const isLandingPage = computed(() => route.path === '/');
           <span>Wallet</span>
         </router-link>
 
-        <div class="mobile-nav-item opacity-40">
-          <Settings class="w-6 h-6" />
-          <span>More</span>
-        </div>
+        <!-- FIXTURES LINK (Icon Only on Mobile to save space) -->
+        <router-link v-if="permissions.canSelectTeam" to="/fixtures" class="mobile-nav-item" active-class="active">
+          <Calendar class="w-6 h-6" />
+          <span>Matches</span>
+        </router-link>
+
+        <router-link v-if="permissions.canManageMoney" to="/treasurer" class="mobile-nav-item" active-class="active">
+          <HandCoins class="w-6 h-6" />
+          <span>Money</span>
+        </router-link>
+
+        <router-link v-if="permissions.canEditRules" to="/admin" class="mobile-nav-item" active-class="active">
+          <Users class="w-6 h-6" />
+          <span>Admin</span>
+        </router-link>
       </nav>
 
     </main>
@@ -110,7 +149,6 @@ const isLandingPage = computed(() => route.path === '/');
 </template>
 
 <style scoped>
-/* Sidebar Styles */
 .nav-row {
   display: flex;
   align-items: center;
@@ -125,7 +163,6 @@ const isLandingPage = computed(() => route.path === '/');
 .nav-row:hover { background-color: #1e293b; color: white; }
 .nav-row.active { background-color: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-/* Mobile Nav Styles */
 .mobile-nav-item {
   display: flex;
   flex-direction: column;
@@ -140,31 +177,7 @@ const isLandingPage = computed(() => route.path === '/');
 }
 .mobile-nav-item.active { color: #4f46e5; }
 
-/* Page Transitions */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
 </style>
-
-Step 3: Verify Router
-Ensure your src/router/index.js looks like this (it connects the pieces):
-import { createRouter, createWebHistory } from 'vue-router'
-import LandingPage from '../components/LandingPage.vue'
-import TeamSelection from '../components/TeamSelection.vue'
-import FamilyWallet from '../components/FamilyWallet.vue'
-
-const routes = [
-  { path: '/', component: LandingPage },
-  { path: '/selection', component: TeamSelection },
-  { path: '/wallet', component: FamilyWallet }
-]
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-  scrollBehavior(to, from, savedPosition) {
-    return { top: 0 }
-  }
-})
-
-export default router

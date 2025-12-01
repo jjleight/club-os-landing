@@ -1,22 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// Import your components
 import LandingPage from '../components/LandingPage.vue'
 import TeamSelection from '../components/TeamSelection.vue'
 import FamilyWallet from '../components/FamilyWallet.vue'
+import TreasurerDashboard from '../components/TreasurerDashboard.vue'
+import LeagueRules from '../components/LeagueRules.vue'
+import ClubAdmin from '../components/ClubAdmin.vue'
+import ClubOnboarding from '../components/ClubOnboarding.vue'
+import FixtureManager from '../components/FixtureManager.vue' // Import
 
 const routes = [
-  // 1. The Marketing Page (Root)
   { path: '/', component: LandingPage },
-  
-  // 2. The App Pages
+  { path: '/onboarding', component: ClubOnboarding },
   { path: '/selection', component: TeamSelection },
-  { path: '/wallet', component: FamilyWallet }
+  { path: '/wallet', component: FamilyWallet },
+  { path: '/treasurer', component: TreasurerDashboard },
+  { path: '/rules', component: LeagueRules },
+  { path: '/admin', component: ClubAdmin },
+  { path: '/fixtures', component: FixtureManager } // New Route
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  // This ensures the page scrolls to top when you navigate
   scrollBehavior(to, from, savedPosition) {
     return { top: 0 }
   }

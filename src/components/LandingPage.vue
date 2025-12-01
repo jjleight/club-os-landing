@@ -5,42 +5,40 @@ import BrandLogo from './BrandLogo.vue';
 import { 
   ShieldAlert, 
   Wallet, 
+  Gavel, 
   ArrowRight, 
   CheckCircle2, 
   XCircle, 
   AlertTriangle,
   Zap,
   LayoutGrid,
-  Minus
+  Save,
+  Minus,
+  FileWarning
 } from 'lucide-vue-next';
 
 const router = useRouter();
-const email = ref('');
 const loading = ref(false);
 const submitted = ref(false);
-const activeDemoTab = ref('selection');
+const activeDemoTab = ref('selection'); // 'selection', 'wallet', or 'rules'
 
-const handleSubmit = async () => {
-  loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
-    submitted.value = true;
-    email.value = '';
-  }, 1500);
-};
-
+// Navigate to the Demo App
 const goToDemo = () => {
   router.push('/selection');
 };
 
-// The 3-Way Comparison Data
+// Navigate to the Onboarding Wizard
+const startOnboarding = () => {
+  router.push('/onboarding');
+};
+
 const competitors = [
-  { feature: "Team App & Chat", pitchero: true, spond: true, clubos: true },
-  { feature: "Club Website Builder", pitchero: true, spond: false, clubos: true },
-  { feature: "Match Fee Collection", pitchero: true, spond: true, clubos: true },
-  { feature: "League Eligibility Engine", pitchero: false, spond: false, clubos: true },
-  { feature: "Family Wallet (Consolidated)", pitchero: false, spond: false, clubos: true },
-  { feature: "Asset Management (Pitches)", pitchero: false, spond: false, clubos: true },
+  { feature: "Team App & Chat", pitchero: true, spond: true, sportos: true },
+  { feature: "Club Website Builder", pitchero: true, spond: false, sportos: true },
+  { feature: "Match Fee Collection", pitchero: true, spond: true, sportos: true },
+  { feature: "League Eligibility Engine", pitchero: false, spond: false, sportos: true },
+  { feature: "Family Wallet (Consolidated)", pitchero: false, spond: false, sportos: true },
+  { feature: "Asset Management (Pitches)", pitchero: false, spond: false, sportos: true },
 ];
 </script>
 
@@ -55,7 +53,7 @@ const competitors = [
             <BrandLogo />
           </div>
           <span class="text-2xl font-bold tracking-tight text-slate-900">
-            Club<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-rose-500">OS</span>
+            Sport<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-rose-500">OS</span>
           </span>
         </div>
         
@@ -65,9 +63,10 @@ const competitors = [
           <a href="#" class="hover:text-indigo-600 transition">Pricing</a>
         </div>
 
-        <div class="flex gap-4">
-            <button @click="goToDemo" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
-                Log In
+        <div class="flex gap-4 items-center">
+            <!-- NEW: Onboarding Entry Point -->
+            <button @click="startOnboarding" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
+                Create Club
             </button>
             <button @click="goToDemo" class="hidden md:flex bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition shadow-lg shadow-slate-900/20 hover:shadow-xl hover:-translate-y-0.5">
             Launch Demo
@@ -76,7 +75,7 @@ const competitors = [
       </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Hero Section (Pulse Messaging) -->
     <header class="container mx-auto px-6 pt-20 pb-32 text-center relative">
       
       <div class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-indigo-300/30 rounded-full blur-[120px] -z-10 mix-blend-multiply animate-pulse-slow"></div>
@@ -98,7 +97,7 @@ const competitors = [
       </p>
 
       <div class="flex flex-col md:flex-row justify-center items-center gap-4">
-          <button @click="goToDemo" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30 text-lg">
+          <button @click="goToDemo" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30 text-lg active:scale-95">
             Try the Interactive Demo
             <ArrowRight class="w-5 h-5" />
           </button>
@@ -109,7 +108,6 @@ const competitors = [
       <div class="mt-16 pt-8 border-t border-slate-200/60 max-w-2xl mx-auto opacity-60">
         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Designed for the Surrey Premier League</p>
         <div class="flex flex-wrap items-center justify-center gap-8 grayscale">
-           <!-- Placeholder boxes for club logos -->
            <div class="h-8 w-24 bg-slate-300 rounded-md"></div>
            <div class="h-8 w-24 bg-slate-300 rounded-md"></div>
            <div class="h-8 w-24 bg-slate-300 rounded-md"></div>
@@ -117,7 +115,7 @@ const competitors = [
       </div>
     </header>
 
-    <!-- Feature Section -->
+    <!-- Interactive Feature Section -->
     <section id="features" class="bg-white py-24 relative z-10 rounded-t-[3rem] shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
       <div class="container mx-auto px-6">
         <div class="grid lg:grid-cols-2 gap-16 items-center">
@@ -126,6 +124,7 @@ const competitors = [
             <h2 class="text-3xl font-bold mb-2 text-slate-900">Why Clubs Switch</h2>
             <p class="text-slate-500 mb-8 text-lg">Spond handles the chat. We handle the compliance and cash.</p>
             
+            <!-- Selector 1: Eligibility -->
             <button @click="activeDemoTab = 'selection'" 
                  class="w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 relative group"
                  :class="activeDemoTab === 'selection' ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-slate-50'">
@@ -140,6 +139,7 @@ const competitors = [
               </div>
             </button>
 
+            <!-- Selector 2: Wallet -->
             <button @click="activeDemoTab = 'wallet'"
                  class="w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 relative group"
                  :class="activeDemoTab === 'wallet' ? 'border-emerald-500 bg-emerald-50/50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-slate-50'">
@@ -153,14 +153,29 @@ const competitors = [
                 </div>
               </div>
             </button>
+
+            <!-- Selector 3: League Compliance (NEW) -->
+            <button @click="activeDemoTab = 'rules'"
+                 class="w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 relative group"
+                 :class="activeDemoTab === 'rules' ? 'border-rose-500 bg-rose-50/50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-slate-50'">
+              <div class="flex items-start gap-4">
+                <div class="p-3 rounded-xl shadow-sm" :class="activeDemoTab === 'rules' ? 'bg-rose-500 text-white' : 'bg-white text-slate-400'">
+                  <Gavel class="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold mb-1" :class="activeDemoTab === 'rules' ? 'text-rose-900' : 'text-slate-700'">League Compliance</h3>
+                  <p class="text-sm text-slate-500 leading-relaxed">Configure rules instantly. Change the "Starring" limit and update every captain's app in real-time.</p>
+                </div>
+              </div>
+            </button>
           </div>
 
-          <!-- Phone Mockup (Marketing Version - Static Data) -->
+          <!-- Phone Mockup -->
           <div class="relative mx-auto">
             <div class="relative border-slate-900 bg-slate-900 border-[12px] rounded-[2.5rem] h-[640px] w-[320px] shadow-2xl shadow-slate-900/20 overflow-hidden transform rotate-1 hover:rotate-0 transition duration-500">
               <div class="bg-slate-50 w-full h-full pt-12 pb-4 overflow-y-auto no-scrollbar">
                 
-                <!-- Eligibility View -->
+                <!-- 1. Eligibility View -->
                 <div v-if="activeDemoTab === 'selection'" class="px-4 animate-fade-in">
                   <div class="flex justify-between items-end mb-6 border-b border-slate-200 pb-4">
                     <div>
@@ -171,7 +186,6 @@ const competitors = [
                       <LayoutGrid class="w-4 h-4" />
                     </div>
                   </div>
-                  
                   <div class="space-y-3">
                     <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
                       <div class="flex items-center gap-3">
@@ -183,28 +197,27 @@ const competitors = [
                       </div>
                       <CheckCircle2 class="w-5 h-5 text-slate-300" />
                     </div>
-
-                    <div class="bg-white p-3 rounded-xl border-2 border-rose-100 shadow-sm relative overflow-hidden">
+                    <div class="bg-white p-3 rounded-xl border-2 border-rose-500 shadow-lg shadow-rose-500/20 relative overflow-hidden transform scale-105">
                       <div class="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-bold px-2 py-1 rounded-bl-lg">INELIGIBLE</div>
-                      <div class="flex items-center gap-3 opacity-60">
+                      <div class="flex items-center gap-3 mb-2">
                         <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm">HK</div>
                         <div>
                           <div class="font-bold text-slate-900 text-sm">Harry Kane</div>
                           <div class="text-[10px] text-slate-500">1st XI Apps: 8 (Limit: 5)</div>
                         </div>
                       </div>
-                      <div class="mt-3 bg-rose-50 p-3 rounded-lg border border-rose-100 flex gap-2">
-                        <AlertTriangle class="w-4 h-4 text-rose-500 shrink-0" />
-                        <div class="text-[10px] text-rose-700 leading-tight">
-                          <strong>League Violation:</strong> Selecting Harry may result in a £50 fine.
+                      <div class="bg-rose-50 p-3 rounded-lg border border-rose-100 flex gap-2 items-start">
+                        <FileWarning class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                        <div class="text-[10px] text-rose-800 leading-tight">
+                          <strong>League Violation:</strong> This selection breaks the "Starring" rule. Selecting Harry will result in a points deduction.
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Wallet View -->
-                <div v-else class="px-4 animate-fade-in">
+                <!-- 2. Wallet View -->
+                <div v-else-if="activeDemoTab === 'wallet'" class="px-4 animate-fade-in">
                   <div class="bg-slate-900 rounded-2xl p-6 text-white mb-6 shadow-xl shadow-indigo-500/20 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-full blur-2xl -mr-10 -mt-10 opacity-50"></div>
                     <div class="relative z-10">
@@ -213,31 +226,65 @@ const competitors = [
                       <div class="text-xs text-indigo-300 mt-2">Due: 28 Nov 2025</div>
                     </div>
                   </div>
-
                   <div class="space-y-2">
                     <div class="text-xs font-bold text-slate-400 uppercase px-1">Breakdown</div>
                     <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
                       <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-xs">👶</div>
-                        <div>
-                          <div class="text-sm font-bold text-slate-900">Jack (U10)</div>
-                          <div class="text-[10px] text-slate-500">Match Fee vs Ashford</div>
-                        </div>
+                        <div class="text-sm font-bold text-slate-900">Jack (U10)</div>
                       </div>
                       <div class="font-bold text-slate-700">£5.00</div>
                     </div>
                     <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
                       <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-xs">👧</div>
-                        <div>
-                          <div class="text-sm font-bold text-slate-900">Sarah (U12)</div>
-                          <div class="text-[10px] text-slate-500">Annual Subs</div>
-                        </div>
+                        <div class="text-sm font-bold text-slate-900">Sarah (U12)</div>
                       </div>
                       <div class="font-bold text-slate-700">£30.00</div>
                     </div>
                   </div>
                   <button @click="goToDemo" class="w-full mt-6 bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg">Pay All</button>
+                </div>
+
+                <!-- 3. League Compliance View (NEW) -->
+                <div v-else-if="activeDemoTab === 'rules'" class="px-4 animate-fade-in">
+                  <div class="flex justify-between items-end mb-6 border-b border-slate-200 pb-4">
+                    <div>
+                      <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Secretary Settings</div>
+                      <div class="text-xl font-bold text-slate-900">Compliance Rules</div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+                      <Gavel class="w-4 h-4" />
+                    </div>
+                  </div>
+
+                  <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                      <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-slate-900">Higher Level Apps</h3>
+                        <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-1 rounded">MANDATORY</span>
+                      </div>
+                      <p class="text-xs text-slate-500 mb-4">Max games played for a higher team before player becomes ineligible.</p>
+                      
+                      <div class="flex items-center justify-between bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <div class="text-xs font-bold text-slate-400 pl-2">LIMIT</div>
+                        <div class="text-xl font-bold text-slate-900">5</div>
+                        <div class="bg-white px-3 py-1 rounded-lg border border-slate-200 text-xs font-bold shadow-sm">Edit</div>
+                      </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm opacity-60">
+                      <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-slate-900">Cup Tying</h3>
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">ACTIVE</span>
+                      </div>
+                      <p class="text-xs text-slate-500">Players cannot play for multiple teams in the same cup competition.</p>
+                    </div>
+                  </div>
+                  
+                  <button @click="goToDemo" class="w-full mt-6 bg-rose-600 text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
+                    <Save class="w-4 h-4" /> Save Rules
+                  </button>
                 </div>
 
               </div>
@@ -255,7 +302,7 @@ const competitors = [
         <div class="text-center mb-16">
           <h2 class="text-4xl font-extrabold mb-4 text-slate-900">The "Club" Standard</h2>
           <p class="text-lg text-slate-500 max-w-2xl mx-auto">
-            Most apps are built for casual teams. We are built for professional administration.
+            See why Treasurers are upgrading from chat apps.
           </p>
         </div>
         
@@ -266,26 +313,20 @@ const competitors = [
                 <th class="p-6 font-bold text-slate-400 text-xs uppercase tracking-wider w-1/3">Feature</th>
                 <th class="p-6 font-bold text-center text-slate-500 text-xs uppercase tracking-wider w-1/5">Pitchero</th>
                 <th class="p-6 font-bold text-center text-emerald-600 text-xs uppercase tracking-wider w-1/5">Spond</th>
-                <th class="p-6 font-bold text-center text-indigo-600 text-xs uppercase tracking-wider w-1/5 bg-indigo-50/40">ClubOS</th>
+                <th class="p-6 font-bold text-center text-indigo-600 text-xs uppercase tracking-wider w-1/5 bg-indigo-50/40">SportOS</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-for="item in competitors" :key="item.feature" class="hover:bg-slate-50 transition group">
                 <td class="p-5 font-medium text-slate-700 group-hover:text-indigo-900 transition">{{ item.feature }}</td>
-                
-                <!-- Pitchero Column -->
                 <td class="p-5 text-center border-l border-slate-50">
                   <CheckCircle2 v-if="item.pitchero" class="w-5 h-5 text-slate-400 mx-auto" />
                   <Minus v-else class="w-4 h-4 text-slate-200 mx-auto" />
                 </td>
-
-                <!-- Spond Column -->
                 <td class="p-5 text-center border-l border-slate-50">
                   <CheckCircle2 v-if="item.spond" class="w-5 h-5 text-emerald-500 mx-auto" />
                   <Minus v-else class="w-4 h-4 text-slate-200 mx-auto" />
                 </td>
-
-                <!-- ClubOS Column -->
                 <td class="p-5 text-center bg-indigo-50/20 group-hover:bg-indigo-50/40 transition border-l border-indigo-100/50">
                   <div class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto shadow-sm shadow-indigo-200">
                     <CheckCircle2 class="w-4 h-4" />
@@ -294,10 +335,6 @@ const competitors = [
               </tr>
             </tbody>
           </table>
-        </div>
-        
-        <div class="mt-8 text-center text-sm text-slate-400">
-          Comparison based on public feature lists as of Nov 2025.
         </div>
       </div>
     </section>
@@ -309,11 +346,9 @@ const competitors = [
            <div class="w-8 h-8">
             <BrandLogo />
           </div>
-          <span class="text-2xl font-bold tracking-tight text-white">
-            Club<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-rose-500">OS</span>
-          </span>
+          <span class="text-2xl font-bold text-white tracking-tight">SportOS</span>
         </div>
-        <p class="text-sm mb-8 max-w-sm mx-auto">© 2025 ClubOS UK. Built for the love of the game.</p>
+        <p class="text-sm mb-8 max-w-sm mx-auto">© 2025 SportOS UK. Built for the love of the game in Ashford, Kent.</p>
         <div class="flex justify-center gap-8 text-sm font-medium">
           <a href="#" class="hover:text-white transition">Privacy Policy</a>
           <a href="#" class="hover:text-white transition">Terms of Service</a>

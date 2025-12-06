@@ -13,27 +13,31 @@ export function useHousehold() {
   const fetchHousehold = async () => {
     loading.value = true;
     try {
-      // 1. If Logged In: Find MY household
-      if (user.value) {
-        const { data, error } = await supabase
-          .from('households')
-          .select('id, name')
-          .eq('owner_profile_id', user.value.id)
-          .single();
-
-        if (data) {
-          householdId.value = data.id;
-          householdName.value = data.name;
-          loading.value = false;
-          return; // Found it, stop here.
-        }
+      if (!user.value) {
+         // Fallback for Demo/Guest mode (The Smith Family)
+         householdId.value = 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380e11'; 
+         householdName.value = 'The Smith Family (Demo)';
+         loading.value = false;
+         return;
       }
 
-      // 2. Fallback (Demo Mode / No User): Use hardcoded Smith Family
-      // This ensures the "Public Demo" still works for investors
-      console.log("No user linked household found, defaulting to Demo Mode.");
-      householdId.value = 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380e11'; 
-      householdName.value = 'The Smith Family (Demo)';
+      // REAL LOGIC: Find household owned by this user
+      const { data, error } = await supabase
+        .from('households')
+        .select('id, name')
+        .eq('owner_profile_id', user.value.id)
+        .maybeSingle(); // <--- CHANGED: returns null instead of error if 0 rows
+
+      if (error) throw error;
+
+      if (data) {
+        householdId.value = data.id;
+        householdName.value = data.name;
+      } else {
+        // Valid state: User has no household linked yet
+        householdId.value = null; 
+        householdName.value = '';
+      }
 
     } catch (err) {
       console.error("Error loading household:", err);
@@ -42,7 +46,7 @@ export function useHousehold() {
     }
   };
 
-  // React to login/logout changes
+  // Watch for login/logout
   watch(user, () => {
     fetchHousehold();
   });

@@ -6,7 +6,7 @@ import { useToast } from '../../composables/useToast';
 import BrandLogo from '../BrandLogo.vue';
 
 const router = useRouter();
-const { register } = useUser();
+const { register, userRoles } = useUser(); // Import userRoles to check status
 const { showToast } = useToast();
 
 const form = ref({ firstName: '', lastName: '', email: '', password: '' });
@@ -16,8 +16,18 @@ const handleRegister = async () => {
   loading.value = true;
   try {
     await register(form.value.email, form.value.password, form.value.firstName, form.value.lastName);
-    showToast('Account Created', 'Let\'s set up your club.', 'success');
-    router.push('/onboarding'); // Send them to Club Wizard
+    
+    // SMART REDIRECT LOGIC
+    if (userRoles.value.length > 0) {
+        // User was auto-linked to a club
+        showToast('Welcome', 'Account linked to your club successfully.', 'success');
+        router.push('/hub');
+    } else {
+        // User is new/unlinked (Start a Club)
+        showToast('Account Created', 'Let\'s set up your club.', 'success');
+        router.push('/onboarding');
+    }
+
   } catch (error) {
     showToast('Error', error.message, 'error');
   } finally {
@@ -83,7 +93,7 @@ const handleRegister = async () => {
 
 .input {
   width: 100%;
-  background-color: #F8FAFC; /* FIXED: Was 'bg-slate-50' */
+  background-color: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 0.75rem;
   padding: 0.75rem;

@@ -1,18 +1,18 @@
 <script setup>
 import { useUser } from '../composables/useUser';
-import { UserCircle2, ChevronDown, Check } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { UserCircle2, ChevronDown, Check, Layers } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const props = defineProps({
   theme: { type: String, default: 'dark' }, 
-  direction: { type: String, default: 'up' }
+  direction: { type: String, default: 'up' } 
 });
 
-// Use the new exposed state
-const { activeRole, setPersona } = useUser();
+const { permissions, setPersona } = useUser();
 const isOpen = ref(false);
 
 const roles = [
+  { id: 'default', label: 'Real Access', desc: 'My actual permissions', icon: Layers },
   { id: 'admin', label: 'Club Admin', desc: 'Full Access' },
   { id: 'treasurer', label: 'Treasurer', desc: 'Finance & Health' },
   { id: 'secretary', label: 'Secretary', desc: 'Rules & Compliance' },
@@ -20,14 +20,9 @@ const roles = [
   { id: 'parent', label: 'Parent', desc: 'Family Wallet' },
 ];
 
-// Map technical role ID to pretty label
-const currentRoleLabel = computed(() => {
-  const match = roles.find(r => r.id === activeRole.value);
-  return match ? match.label : activeRole.value;
-});
-
 const selectRole = (roleId) => {
-  setPersona(roleId);
+  // If roleId is 'default', setPersona handles null internally
+  setPersona(roleId); 
   isOpen.value = false;
 };
 </script>
@@ -35,7 +30,6 @@ const selectRole = (roleId) => {
 <template>
   <div class="relative w-full">
     
-    <!-- THE TRIGGER BUTTON -->
     <button @click="isOpen = !isOpen" 
             class="flex items-center gap-3 w-full p-2.5 rounded-xl transition text-left border relative z-10"
             :class="theme === 'dark' 
@@ -49,16 +43,14 @@ const selectRole = (roleId) => {
       
       <div class="flex-1 min-w-0">
         <div class="text-[10px] font-bold uppercase tracking-wider opacity-70">Viewing As</div>
-        <div class="text-sm font-bold capitalize truncate leading-tight">{{ currentRoleLabel }}</div>
+        <div class="text-sm font-bold capitalize truncate leading-tight">{{ permissions.currentLabel }}</div>
       </div>
       
       <ChevronDown class="w-4 h-4 opacity-50" :class="{ 'rotate-180': isOpen }" />
     </button>
 
-    <!-- BACKDROP -->
     <div v-if="isOpen" @click="isOpen = false" class="fixed inset-0 z-0 cursor-default"></div>
 
-    <!-- THE DROPDOWN MENU -->
     <div v-if="isOpen" 
          class="absolute left-0 w-full min-w-[240px] border rounded-xl shadow-xl overflow-hidden z-20"
          :class="[
@@ -75,18 +67,21 @@ const selectRole = (roleId) => {
              ? 'border-slate-700 hover:bg-slate-700' 
              : 'border-slate-50 hover:bg-slate-50'">
         
-        <div>
-          <div class="text-sm font-bold" 
-               :class="theme === 'dark' ? 'text-slate-200 group-hover:text-white' : 'text-slate-900'">
-            {{ role.label }}
-          </div>
-          <div class="text-[10px]" 
-               :class="theme === 'dark' ? 'text-slate-500 group-hover:text-slate-400' : 'text-slate-400'">
-            {{ role.desc }}
-          </div>
+        <div class="flex items-center gap-3">
+            <component v-if="role.icon" :is="role.icon" class="w-4 h-4 opacity-50" />
+            <div>
+              <div class="text-sm font-bold" 
+                  :class="theme === 'dark' ? 'text-slate-200 group-hover:text-white' : 'text-slate-900'">
+                {{ role.label }}
+              </div>
+              <div class="text-[10px]" 
+                  :class="theme === 'dark' ? 'text-slate-500 group-hover:text-slate-400' : 'text-slate-400'">
+                {{ role.desc }}
+              </div>
+            </div>
         </div>
         
-        <Check v-if="activeRole === role.id" class="w-4 h-4 text-emerald-500" />
+        <Check v-if="permissions.currentLabel.toLowerCase() === role.label.toLowerCase() || (role.id === 'default' && permissions.currentLabel.includes('Hybrid'))" class="w-4 h-4 text-emerald-500" />
       </div>
     </div>
 

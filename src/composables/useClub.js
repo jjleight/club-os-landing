@@ -4,33 +4,44 @@ import { supabase } from '../supabase';
 // Global state
 const activeClubId = ref(null); 
 const activeClubName = ref('');
+const activeClubColor = ref('#4F46E5'); // Default to Indigo
 
 export function useClub() {
   
-  const createClub = async (name, creatorUser) => {
+  // Updated: Accepts an object { name, sport, county, color }
+  const createClub = async (clubDetails, creatorUser) => {
+    
+    const { name, sport, county, color } = clubDetails;
+
     // 1. Generate Slug
     const slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '') + '-' + Date.now().toString().slice(-4);
     
-    // 2. Insert Club
+    // 2. Insert Club with ALL fields
     const { data: club, error } = await supabase
       .from('clubs')
-      .insert({ name, slug })
+      .insert({ 
+        name, 
+        slug,
+        sport: sport || 'Football',
+        county_affiliation: county || null,
+        primary_color: color || '#4F46E5'
+      })
       .select()
       .single();
 
     if (error) throw error;
 
-    // 3. CRITICAL: Make the Creator the Admin immediately
+    // 3. Link Admin (Creator)
     if (creatorUser) {
-        // A. Assign Role
+        // Assign Role
         const { error: roleError } = await supabase.from('user_roles').insert({
             profile_id: creatorUser.id,
             club_id: club.id,
-            role: 'admin' // The Creator is always the Admin
+            role: 'admin' 
         });
         if (roleError) throw roleError;
 
-        // B. Update Profile Context (So they log in to this club next time)
+        // Update Profile Context
         await supabase.from('profiles').update({ 
             club_id: club.id,
             role: 'admin'
@@ -40,6 +51,7 @@ export function useClub() {
     // 4. Set as Active Session
     activeClubId.value = club.id;
     activeClubName.value = club.name;
+    activeClubColor.value = club.primary_color;
     
     return club;
   };
@@ -47,6 +59,7 @@ export function useClub() {
   return {
     activeClubId,
     activeClubName,
+    activeClubColor,
     createClub
   };
 }

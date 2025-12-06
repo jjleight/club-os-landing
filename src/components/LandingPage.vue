@@ -210,7 +210,7 @@ const competitors = [
                 </div>
                 <div>
                   <h3 class="text-lg font-bold mb-1" :class="activeDemoTab === 'selection' ? 'text-indigo-900' : 'text-slate-700'">The Eligibility Engine</h3>
-                  <p class="text-sm text-slate-500 leading-relaxed">Stop accidental fines. The app alerts captains if a player is ineligible (Cup Tied / Too many apps).</p>
+                  <p class="text-sm text-slate-500 leading-relaxed">Stop accidental fines. The app alerts captains if a player is ineligible (Cup Tied / Too many appearences).</p>
                 </div>
               </div>
             </button>

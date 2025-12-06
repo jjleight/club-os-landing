@@ -156,7 +156,7 @@ const competitors = [
              
              <p class="text-xl text-slate-600 mb-10 leading-relaxed font-medium">
                 We are building the operating system your Club has been dreaming of. 
-                Automated compliance, unified family wallets, and zero admin headaches.
+                Automated compliance, unified ecosystem, family wallets, and zero admin headaches.
              </p>
 
              <div class="flex flex-wrap gap-4 justify-center lg:justify-start text-sm font-bold text-slate-500">
@@ -175,7 +175,7 @@ const competitors = [
                  
                  <div v-if="!submitted">
                     <h3 class="text-xl font-bold text-slate-900 mb-2">Get Early Access</h3>
-                    <p class="text-sm text-slate-500 mb-6">Join 200+ clubs on the priority waiting list.</p>
+                    <p class="text-sm text-slate-500 mb-6">Join 50+ clubs on the priority waiting list.</p>
 
                     <form @submit.prevent="joinWaitlist" class="space-y-4">
                         <div>

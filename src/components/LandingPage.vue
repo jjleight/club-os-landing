@@ -6,8 +6,7 @@ import { useToast } from '../composables/useToast';
 import BrandLogo from './BrandLogo.vue';
 import { 
   ShieldAlert, Wallet, Gavel, CheckCircle2, 
-  Zap, LayoutGrid, Calculator, Check, Minus, 
-  ArrowRight, Users, Building2, Mail, User
+  Zap, Minus, ArrowRight, Users, Building2, Mail, User
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -105,8 +104,8 @@ const competitors = [
              </h1>
              
              <p class="text-xl text-slate-600 mb-10 leading-relaxed font-medium">
-                We are building the operating system your Treasurer has been dreaming of. 
-                Automated compliance, unified family wallets, and zero admin headaches.
+                We are building the operating system your Club has been dreaming of. 
+                Automated compliance, unified ecosystem, family wallet and zero admin headaches.
              </p>
 
              <div class="flex flex-wrap gap-4 justify-center lg:justify-start text-sm font-bold text-slate-500">

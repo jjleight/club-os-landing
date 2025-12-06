@@ -4,7 +4,7 @@ import { supabase } from '../supabase';
 import { useToast } from '../composables/useToast';
 import { useConfirm } from '../composables/useConfirm';
 import { useClub } from '../composables/useClub';
-import { useUser } from '../composables/useUser'; // Import Permissions
+import { useUser } from '../composables/useUser'; 
 import { 
   Calendar, Plus, MapPin, Clock, 
   Search, Edit2, Trash2, XCircle, 
@@ -15,11 +15,12 @@ import {
 // Sub-Components
 import FixtureList from './fixtures/FixtureList.vue';
 import FixtureModal from './fixtures/FixtureModal.vue';
+import MatchReportModal from './fixtures/MatchReportModal.vue'; // NEW IMPORT
 
 const { showToast } = useToast();
 const { showConfirm } = useConfirm();
 const { activeClubId } = useClub();
-const { permissions } = useUser(); // Get User Permissions
+const { permissions } = useUser(); 
 
 const loading = ref(true);
 const teams = ref([]);
@@ -32,7 +33,9 @@ const searchQuery = ref('');
 
 // Modal State
 const showModal = ref(false);
+const showReportModal = ref(false); // NEW STATE
 const editingFixture = ref(null);
+const reportingMatch = ref(null);   // NEW STATE
 
 onMounted(fetchData);
 
@@ -46,7 +49,6 @@ async function fetchData() {
     .eq('club_id', activeClubId.value)
     .order('team_level');
   
-  // FILTER TEAMS: Only show teams this user manages
   let allowedTeams = teamData || [];
   if (permissions.value.managedTeamIds !== 'all') {
       allowedTeams = allowedTeams.filter(t => permissions.value.managedTeamIds.includes(t.id));
@@ -62,23 +64,16 @@ async function fetchData() {
 
   if (error) console.error(error);
   
-  // FILTER MATCHES: Only show matches for managed teams
   let allowedMatches = matchData || [];
   if (permissions.value.managedTeamIds !== 'all') {
       allowedMatches = allowedMatches.filter(m => permissions.value.managedTeamIds.includes(m.team_id));
   }
   fixtures.value = allowedMatches;
   
-  // Auto-select first team if user only manages specific teams
-  if (permissions.value.managedTeamIds !== 'all' && teams.value.length > 0 && selectedTeamId.value === 'all') {
-      // Optional: We could force selection, or leave 'all' to mean 'All MY teams'
-      // selectedTeamId.value = teams.value[0].id;
-  }
-
   loading.value = false;
 }
 
-// Computed Filter Logic
+// ... (Filter Logic Remains the Same) ...
 const processedFixtures = computed(() => {
   let list = fixtures.value.filter(f => {
     if (f.status === 'Played' && timeframe.value === 'upcoming') return false;
@@ -93,10 +88,7 @@ const processedFixtures = computed(() => {
     return true;
   });
 
-  if (selectedTeamId.value !== 'all') {
-    list = list.filter(f => f.team_id === selectedTeamId.value);
-  }
-
+  if (selectedTeamId.value !== 'all') list = list.filter(f => f.team_id === selectedTeamId.value);
   return list;
 });
 
@@ -114,14 +106,13 @@ const groupedFixtures = computed(() => {
 });
 
 // Actions
-const handleOpenCreate = () => {
-  editingFixture.value = null;
-  showModal.value = true;
-};
+const handleOpenCreate = () => { editingFixture.value = null; showModal.value = true; };
+const handleOpenEdit = (match) => { editingFixture.value = match; showModal.value = true; };
 
-const handleOpenEdit = (match) => {
-  editingFixture.value = match;
-  showModal.value = true;
+// NEW: Open Report
+const handleOpenReport = (match) => {
+  reportingMatch.value = match;
+  showReportModal.value = true;
 };
 
 const handleSave = async (formData) => {
@@ -205,17 +196,26 @@ const handleStatusUpdate = async (match, newStatus) => {
         :groupedFixtures="groupedFixtures" 
         @edit="handleOpenEdit" 
         @delete="handleDelete" 
-        @updateStatus="handleStatusUpdate" 
+        @updateStatus="handleStatusUpdate"
+        @report="handleOpenReport" 
       />
     </div>
 
-    <!-- Modal -->
+    <!-- Modals -->
     <FixtureModal 
       v-if="showModal"
       :teams="teams"
       :fixture="editingFixture"
       @close="showModal = false"
       @save="handleSave"
+    />
+    
+    <!-- Match Report Modal -->
+    <MatchReportModal
+      v-if="showReportModal"
+      :match="reportingMatch"
+      @close="showReportModal = false"
+      @saved="fetchData"
     />
 
   </div>

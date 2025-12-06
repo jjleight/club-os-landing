@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router'; // Import Router
+import { useRoute, useRouter } from 'vue-router';
 import { useUser } from './composables/useUser';
 import BrandLogo from './components/BrandLogo.vue';
 import ToastManager from './components/ToastManager.vue';
@@ -15,25 +15,22 @@ import {
   Menu, 
   Gavel, 
   Users,
-  Calendar 
+  Calendar,
+  Trophy // NEW ICON
 } from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();
 const isLandingPage = computed(() => route.path === '/' || route.path === '/onboarding' || route.path === '/login' || route.path === '/register');
-
-// Destructure logout from the composable
 const { permissions, initAuth, logout } = useUser(); 
 
-// Initialize Auth on App Load
 onMounted(async () => {
   await initAuth();
 });
 
-// THE LOGOUT LOGIC
 const handleLogout = async () => {
   await logout();
-  router.push('/'); // Redirect to Home
+  router.push('/'); 
 };
 </script>
 
@@ -54,29 +51,42 @@ const handleLogout = async () => {
 
       <nav class="flex-1 px-4 space-y-2 mt-4">
         
+        <!-- Coach Section -->
         <router-link v-if="permissions.canSelectTeam" to="/selection" class="nav-row" active-class="active">
           <LayoutGrid class="w-5 h-5" />
           <span>Team Selection</span>
         </router-link>
 
+        <router-link v-if="permissions.canSelectTeam || permissions.canEditRules" to="/fixtures" class="nav-row" active-class="active">
+          <Calendar class="w-5 h-5" />
+          <span>Fixtures</span>
+        </router-link>
+
+        <!-- Parent/Player Section -->
         <router-link v-if="permissions.isParent" to="/hub" class="nav-row" active-class="active">
           <Calendar class="w-5 h-5" />
           <span>Match Day Hub</span>
         </router-link>
 
-        <router-link to="/wallet" class="nav-row" active-class="active">
+        <router-link v-if="permissions.isParent" to="/wallet" class="nav-row" active-class="active">
           <Wallet class="w-5 h-5" />
           <span>My Wallet</span>
         </router-link>
 
+        <!-- NEW: Stats Link -->
+        <router-link v-if="permissions.isParent" to="/stats" class="nav-row" active-class="active">
+          <Trophy class="w-5 h-5" />
+          <span>My Career</span>
+        </router-link>
+
+        <!-- Admin Section -->
+        <div v-if="permissions.canManageMoney || permissions.canEditRules" class="mt-6 mb-2 px-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            Admin
+        </div>
+
         <router-link v-if="permissions.canManageMoney" to="/treasurer" class="nav-row" active-class="active">
           <HandCoins class="w-5 h-5" />
           <span>Club Health</span>
-        </router-link>
-
-        <router-link v-if="permissions.canSelectTeam || permissions.canEditRules" to="/fixtures" class="nav-row" active-class="active">
-          <Calendar class="w-5 h-5" />
-          <span>Fixtures</span>
         </router-link>
 
         <router-link v-if="permissions.canEditRules" to="/rules" class="nav-row" active-class="active">
@@ -98,7 +108,6 @@ const handleLogout = async () => {
       <div class="p-4 border-t border-slate-800 space-y-4">
         <RoleSwitcher theme="dark" direction="up" />
         
-        <!-- LOGOUT BUTTON (Desktop) -->
         <button @click="handleLogout" class="flex items-center gap-3 text-sm font-medium hover:text-white transition px-2 w-full text-left">
           <LogOut class="w-4 h-4" />
           Sign Out
@@ -118,7 +127,6 @@ const handleLogout = async () => {
           <span class="font-bold text-lg text-slate-900">SportOS</span>
         </div>
         
-        <!-- LOGOUT BUTTON (Mobile) -->
         <button @click="handleLogout" class="text-slate-500 p-2 hover:bg-slate-100 rounded-full transition">
           <LogOut class="w-5 h-5" />
         </button>
@@ -136,7 +144,7 @@ const handleLogout = async () => {
       </div>
 
       <!-- MOBILE BOTTOM NAV -->
-      <nav v-if="!isLandingPage" class="md:hidden bg-white border-t border-slate-200 flex justify-around items-center p-2 pb-safe z-30 sticky bottom-0">
+      <nav v-if="!isLandingPage" class="md:hidden bg-white border-t border-slate-200 flex justify-around items-center p-2 pb-safe z-30 sticky bottom-0 text-[10px]">
         
         <router-link v-if="permissions.canSelectTeam" to="/selection" class="mobile-nav-item" active-class="active">
           <LayoutGrid class="w-6 h-6" />
@@ -145,7 +153,13 @@ const handleLogout = async () => {
 
         <router-link v-if="permissions.isParent" to="/hub" class="mobile-nav-item" active-class="active">
           <Calendar class="w-6 h-6" />
-          <span>Match Day</span>
+          <span>Hub</span>
+        </router-link>
+        
+        <!-- NEW: Stats Icon -->
+        <router-link v-if="permissions.isParent" to="/stats" class="mobile-nav-item" active-class="active">
+          <Trophy class="w-6 h-6" />
+          <span>Stats</span>
         </router-link>
 
         <router-link to="/wallet" class="mobile-nav-item" active-class="active">
@@ -153,17 +167,13 @@ const handleLogout = async () => {
           <span>Wallet</span>
         </router-link>
 
-        <router-link v-if="permissions.canSelectTeam" to="/fixtures" class="mobile-nav-item" active-class="active">
-          <Calendar class="w-6 h-6" />
-          <span>Matches</span>
-        </router-link>
-
+        <!-- Group Admin features for mobile to save space if needed, or keep expanding -->
         <router-link v-if="permissions.canManageMoney" to="/treasurer" class="mobile-nav-item" active-class="active">
           <HandCoins class="w-6 h-6" />
           <span>Money</span>
         </router-link>
-
-        <router-link v-if="permissions.canEditRules" to="/admin" class="mobile-nav-item" active-class="active">
+        
+        <router-link v-if="permissions.canEditRules && !permissions.canManageMoney" to="/admin" class="mobile-nav-item" active-class="active">
           <Users class="w-6 h-6" />
           <span>Admin</span>
         </router-link>

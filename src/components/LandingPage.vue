@@ -254,7 +254,7 @@ const competitors = [
                   <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-lg mb-4 relative overflow-hidden">
                       <div class="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-bold px-2 py-1 rounded-bl-lg">INELIGIBLE</div>
                       <div class="flex items-center gap-3 mb-2">
-                           <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">HK</div>
+                           <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">AL</div>
                            <div>
                               <div class="font-bold text-slate-900">Arthur Leeton</div>
                               <div class="text-xs text-slate-500">1st XI Apps: 8 (Limit: 5)</div>
